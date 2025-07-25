@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django
+  template:
+    metadata:
+      labels:
+        app: django
+    spec:
+      containers:
+      - name: django
+        image: your-dockerhub-username/simple-extraction:latest
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - secretRef:
+            name: db-secret
