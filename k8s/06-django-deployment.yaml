@@ -12,13 +12,10 @@ spec:
       labels:
         app: django
     spec:
-      # --- Add the initContainers section here ---
       initContainers:
         - name: django-migrate
-          image: srishtisingh1/simple-extraction-demo:latest # Use the same image
-          # The command to run is 'migrate', not 'runserver'
+          image: srishtisingh1/simple-extraction-demo:latest
           command: ["python", "manage.py", "migrate"]
-          # The initContainer needs the same database environment variables
           env:
             - name: DB_NAME
               value: "mydatabase"
@@ -40,7 +37,6 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: password
-      # --- Your main application container remains the same ---
       containers:
         - name: django
           image: srishtisingh1/simple-extraction-demo:latest
@@ -68,6 +64,26 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: password
+
+          # ✅ Added Probes
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
 ---
 apiVersion: v1
 kind: Service
