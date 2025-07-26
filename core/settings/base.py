@@ -64,10 +64,10 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME', default='tododb'),
-        'USER': config('DB_USER', default='user'),
-        'PASSWORD': config('DB_PASSWORD', default='password'),
-        'HOST': config('DB_HOST', default='localhost'),
+        'NAME': config('DB_NAME', default='postgres'),
+        'USER': config('DB_USER', default='postgres'),
+        'PASSWORD': config('DB_PASSWORD', default='yourpassword'),
+        'HOST': config('DB_HOST', default='db'),  # docker-compose service name
         'PORT': config('DB_PORT', default='5432'),
     }
 }
