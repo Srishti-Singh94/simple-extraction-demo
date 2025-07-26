@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django
+  template:
+    metadata:
+      labels:
+        app: django
+    spec:
+      # --- Add the initContainers section here ---
+      initContainers:
+        - name: django-migrate
+          image: srishtisingh1/simple-extraction-demo:latest # Use the same image
+          # The command to run is 'migrate', not 'runserver'
+          command: ["python", "manage.py", "migrate"]
+          # The initContainer needs the same database environment variables
+          env:
+            - name: DB_NAME
+              value: "mydatabase"
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: username
+            - name: DB_HOST
+              value: "postgres"
+            - name: DB_PORT
+              value: "5432"
+            - name: DEBUG
+              value: "True"
+            - name: SECRET_KEY
+              value: "django-insecure-7j3t!5+^dfk(2a$9r*1zq8o#=+#7vv6bn6ll6hvn5+^)l^q7we"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: password
+      # --- Your main application container remains the same ---
+      containers:
+        - name: django
+          image: srishtisingh1/simple-extraction-demo:latest
+          ports:
+            - containerPort: 8000
+          command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+          env:
+            - name: DB_NAME
+              value: "mydatabase"
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: username
+            - name: DB_HOST
+              value: "postgres"
+            - name: DB_PORT
+              value: "5432"
+            - name: DEBUG
+              value: "True"
+            - name: SECRET_KEY
+              value: "django-insecure-7j3t!5+^dfk(2a$9r*1zq8o#=+#7vv6bn6ll6hvn5+^)l^q7we"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-service
+spec:
+  selector:
+    app: django
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: NodePort
