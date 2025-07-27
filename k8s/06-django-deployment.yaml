@@ -51,4 +51,4 @@ spec:
       volumes:
         - name: static-files
           persistentVolumeClaim:
-            claimName: django-static-pvc
+            claimName: django-pvc
