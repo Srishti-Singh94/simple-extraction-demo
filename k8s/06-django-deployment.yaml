@@ -37,6 +37,32 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: password
+
+        - name: django-collectstatic
+          image: srishtisingh1/simple-extraction-demo:latest
+          command: ["python", "manage.py", "collectstatic", "--noinput"]
+          env:
+            - name: DB_NAME
+              value: "mydatabase"
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: username
+            - name: DB_HOST
+              value: "postgres"
+            - name: DB_PORT
+              value: "5432"
+            - name: DEBUG
+              value: "True"
+            - name: SECRET_KEY
+              value: "django-insecure-7j3t!5+^dfk(2a$9r*1zq8o#=+#7vv6bn6ll6hvn5+^)l^q7we"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: password
+
       containers:
         - name: django
           image: srishtisingh1/simple-extraction-demo:latest
@@ -65,7 +91,6 @@ spec:
                   name: postgres-secret
                   key: password
 
-          # ✅ Added Probes
           readinessProbe:
             httpGet:
               path: /
