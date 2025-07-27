@@ -1,56 +1,113 @@
-## Simple-Extraction-Demo-Track
+# 📦 Simple Extraction App Deployment – Minikube Infrastructure Guide
 
-This is a demo project to show the process of document extraction.
+---
 
+## 🔧 Objective
+Deploy a Django-based Simple Extraction App on a Minikube Kubernetes cluster using Docker, with automated scripts for deployment and cleanup.
 
-### Summary
+---
 
-A document is uploaded and an email is sent to 3 MTOs who receive the link of data
-extraction. When they open the link, they see a page where they can see a form to
-do the data extraction and submit. Once submitted by all 3 MTOs, TC is applied automatically
-and a final output is produced as valid TC. If no valid TC, an email is sent to the 4th
-MTO.
+## 📁 Project Structure Overview
 
-MTO emails are being sent to the following:
-- mto1@varaluae.com
-- track14@varaluae.com
-- track15@varaluae.com
-
-When TC is not Valid, email is sent to:
-- track6@varaluae.com
-
-### How to Run
-Create a `settings.ini` file in `core/`.
-Copy the contents of `core/example.settings.ini` into your `settings.ini` file.
-
-
-- Create a virtual environment to install dependencies in and activate it:
-
-```sh
-$ pip install virtualenv
-$ virtualenv venv
-$ venv/bin/activate or venv\\Scripts\\activate 
+```bash
+simple-extraction-demo/
+├── Dockerfile
+├── docker-compose.yml
+├── manage.py
+├── requirements.txt
+├── static/
+├── templates/
+├── k8s/
+│   ├── postgres-deployment.yaml
+│   ├── postgres-service.yaml
+│   ├── django-deployment.yaml
+│   ├── django-service.yaml
+│   ├── ingress.yaml
+│   └── pvc.yaml
+├── deploy.sh
+├── cleanup.sh
+└── README.md
 ```
 
-- Then install the dependencies:
+---
 
-```sh
-(venv)$ pip install -r requirements.txt
+## ✅ Step-by-Step: Deployment Automation using `deploy.sh` and `cleanup.sh`
+
+### 🧾 Step 1: Why We Created `deploy.sh` and `cleanup.sh`
+
+- `deploy.sh` banaya taaki pura Kubernetes deployment automate ho jaye — bar bar `kubectl apply` karne ki zarurat na pade.
+- `cleanup.sh` banaya taaki purana deployment easily clean ho jaye (pods, services, PVCs sab delete ho jaye).
+
+### 🛠 Step 2: Scripts Banaye and Unme QA Automation Logic Add Kiya
+
+#### 📁 `deploy.sh` mein kya kya kiya:
+
+1. Backup system lagaya (e.g., ZIP `k8s/` folder with timestamp)
+2. YAML validate karne ka step add kiya (error aaya toh stop)
+3. Har YAML file ko line-by-line apply kiya
+4. Deployment ke baad sleep time diya (`sleep 10`) taaki services ready ho jaye
+5. Final messages diye jaise: “App running at: http://<Minikube IP>:<NodePort>”
+
+#### 🧹 `cleanup.sh` mein kya kiya:
+
+1. `kubectl delete` se sab YAMLs ko reverse order mein delete kiya
+2. Delay (sleep 5) diya taaki sab clean ho jaye
+3. Confirmation print kiya: “✅ All Kubernetes resources have been deleted.”
+
+### 🔒 Step 3: Scripts Ko Executable Banaya
+
+```bash
+chmod +x deploy.sh
+chmod +x cleanup.sh
 ```
-Note the `(venv)` in front of the prompt. This indicates that this terminal
-session operates in a virtual environment.
 
-- Once `pip` has finished downloading the dependencies:
-```sh
-(venv)$ cd project
-(venv)$ python manage.py migrate
-(venv)$ python manage.py runserver
+👉 Iss step se aap directly `./deploy.sh` run kar sakte ho — no need for `bash deploy.sh` again and again.
+
+### 🧪 Step 4: Validation, Error Handling and Improvements
+
+- ✅ Script ne YAML validation kiya (agar Kubernetes cluster off tha, error bhi bataya clearly)
+- ✅ Backup create hua before any deployment, so safe hai rollback ke liye
+- ✅ Easy error tracking: Deployment logs `deploy-<timestamp>.log` mein save hote hain
+- ✅ Human-readable messages: deployment progress step-by-step print hota hai
+
+### 📦 Final Result Kya Mila?
+
+- Pura Kubernetes deployment automate ho gaya
+- Manual `kubectl` commands se chutkaara mila
+- Time-saving and presentation-friendly bana (1-click deploy and cleanup)
+- Reusable, sharable scripts ban gaye jo GitHub me rakh sakte ho
+- Scripts are readable and professional — real-world production ready!
+
+---
+
+## 🚀 Deployment Commands
+
+```bash
+# Step 1: Start Minikube if not running
+minikube start
+
+# Step 2: Enable Ingress (if using ingress.yaml)
+minikube addons enable ingress
+
+# Step 3: Run the deploy script
+deploy.sh
+
+# Step 4: Verify
+kubectl get all
+
+# Step 5: Get URL
+minikube service django-service --url
 ```
 
-- Go to the admin pannel and update the sites to match the production environment domain name.
+---
 
+## 🧹 Cleanup
 
-You are all set. 👏👏
+```bash
+./cleanup.sh
+```
 
+---
 
-
+## 🔚 Done!
+You now have a clean, automated, and professional deployment process for your Django Kubernetes app.
