@@ -16,12 +16,55 @@ spec:
         - name: django-migrate
           image: srishtisingh1/simple-extraction-demo:latest
           command: ["python", "manage.py", "migrate"]
+          env:
+            - name: DB_NAME
+              value: "mydatabase"
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: password
+            - name: DB_HOST
+              value: "postgres"
+            - name: DB_PORT
+              value: "5432"
+            - name: DEBUG
+              value: "True"
+            - name: SECRET_KEY
+              value: "your-secret-key-here"
           volumeMounts:
             - name: media-storage
               mountPath: /app/media
+
         - name: django-collectstatic
           image: srishtisingh1/simple-extraction-demo:latest
           command: ["python", "manage.py", "collectstatic", "--noinput"]
+          env:
+            - name: DB_NAME
+              value: "mydatabase"
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: password
+            - name: DB_HOST
+              value: "postgres"
+            - name: DB_PORT
+              value: "5432"
+            - name: DEBUG
+              value: "True"
+            - name: SECRET_KEY
+              value: "your-secret-key-here"
           volumeMounts:
             - name: media-storage
               mountPath: /app/media
@@ -29,14 +72,50 @@ spec:
       containers:
         - name: django
           image: srishtisingh1/simple-extraction-demo:latest
+          command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
           ports:
             - containerPort: 8000
-          envFrom:
-            - secretRef:
-                name: django-secret
+          env:
+            - name: DB_NAME
+              value: "mydatabase"
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: password
+            - name: DB_HOST
+              value: "postgres"
+            - name: DB_PORT
+              value: "5432"
+            - name: DEBUG
+              value: "True"
+            - name: SECRET_KEY
+              value: "your-secret-key-here"
           volumeMounts:
             - name: media-storage
               mountPath: /app/media
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
 
       volumes:
         - name: media-storage
