@@ -35,49 +35,57 @@ simple-extraction-demo/
 
 ### 🧾 Step 1: Why We Created `deploy.sh` and `cleanup.sh`
 
-- `deploy.sh` banaya taaki pura Kubernetes deployment automate ho jaye — bar bar `kubectl apply` karne ki zarurat na pade.
-- `cleanup.sh` banaya taaki purana deployment easily clean ho jaye (pods, services, PVCs sab delete ho jaye).
+✅ deploy.sh was created to fully automate the Kubernetes deployment process, so that there's no need to run kubectl apply repeatedly.
+✅ cleanup.sh was created to easily clean up the previous deployment, including all pods, services, and PVCs.
 
-### 🛠 Step 2: Scripts Banaye and Unme QA Automation Logic Add Kiya
+🛠 Step 2: Created Scripts and Added QA Automation Logic to Them
 
-#### 📁 `deploy.sh` mein kya kya kiya:
+📁 What was done in deploy.sh:
 
-1. Backup system lagaya (e.g., ZIP `k8s/` folder with timestamp)
-2. YAML validate karne ka step add kiya (error aaya toh stop)
-3. Har YAML file ko line-by-line apply kiya
-4. Deployment ke baad sleep time diya (`sleep 10`) taaki services ready ho jaye
-5. Final messages diye jaise: “App running at: http://<Minikube IP>:<NodePort>”
+Added a backup system (e.g., zipped the k8s/ folder with a timestamp).
 
-#### 🧹 `cleanup.sh` mein kya kiya:
+Added a YAML validation step (if there's an error, the script stops).
 
-1. `kubectl delete` se sab YAMLs ko reverse order mein delete kiya
-2. Delay (sleep 5) diya taaki sab clean ho jaye
-3. Confirmation print kiya: “✅ All Kubernetes resources have been deleted.”
+Applied each YAML file line-by-line.
 
-### 🔒 Step 3: Scripts Ko Executable Banaya
+Added sleep time after deployment (sleep 10) to allow services to become ready.
 
-```bash
+Printed final messages like: “App running at: http://<Minikube IP>:<NodePort>”.
+
+🧹 What was done in cleanup.sh:
+Used kubectl delete to delete all YAMLs in reverse order.
+
+Added a delay (sleep 5) to ensure proper cleanup.
+
+Printed confirmation: “✅ All Kubernetes resources have been deleted.”
+
+🔒 Step 3: Made the Scripts Executable
+bash
+Copy
+Edit
 chmod +x deploy.sh
 chmod +x cleanup.sh
-```
+👉 With this step, you can directly run ./deploy.sh — no need to use bash deploy.sh again and again.
 
-👉 Iss step se aap directly `./deploy.sh` run kar sakte ho — no need for `bash deploy.sh` again and again.
+🧪 Step 4: Validation, Error Handling, and Improvements
+✅ The script validates YAMLs (clearly shows an error if the Kubernetes cluster is off).
 
-### 🧪 Step 4: Validation, Error Handling and Improvements
+✅ Backup is created before every deployment, making rollback safe.
 
-- ✅ Script ne YAML validation kiya (agar Kubernetes cluster off tha, error bhi bataya clearly)
-- ✅ Backup create hua before any deployment, so safe hai rollback ke liye
-- ✅ Easy error tracking: Deployment logs `deploy-<timestamp>.log` mein save hote hain
-- ✅ Human-readable messages: deployment progress step-by-step print hota hai
+✅ Easy error tracking: Deployment logs are saved as deploy-<timestamp>.log.
 
-### 📦 Final Result Kya Mila?
+✅ Human-readable messages: Deployment progress is printed step-by-step.
 
-- Pura Kubernetes deployment automate ho gaya
-- Manual `kubectl` commands se chutkaara mila
-- Time-saving and presentation-friendly bana (1-click deploy and cleanup)
-- Reusable, sharable scripts ban gaye jo GitHub me rakh sakte ho
-- Scripts are readable and professional — real-world production ready!
+📦 What’s the Final Result?
+The entire Kubernetes deployment is automated.
 
+No more manual kubectl commands.
+
+Time-saving and presentation-friendly (1-click deploy and cleanup).
+
+Reusable, shareable scripts that can be stored on GitHub.
+
+Scripts are readable and professional — ready for real-world production use!
 ---
 
 ## 🚀 Deployment Commands
