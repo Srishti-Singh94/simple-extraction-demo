@@ -37,9 +37,6 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: password
-          volumeMounts:
-            - name: django-static
-              mountPath: /app/static
 
         - name: django-collectstatic
           image: srishtisingh1/simple-extraction-demo:latest
@@ -65,16 +62,13 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: password
-          volumeMounts:
-            - name: django-static
-              mountPath: /app/static
 
       containers:
         - name: django
           image: srishtisingh1/simple-extraction-demo:latest
-          command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
           ports:
             - containerPort: 8000
+          command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
           env:
             - name: DB_NAME
               value: "mydatabase"
@@ -115,12 +109,16 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
-
-          volumeMounts:
-            - name: django-static
-              mountPath: /app/static
-
-      volumes:
-        - name: django-static
-          persistentVolumeClaim:
-            claimName: django-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-service
+spec:
+  selector:
+    app: django
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: NodePort
