@@ -1,0 +1,8 @@
+secret/postgres-secret unchanged
+secret/django-secret unchanged
+persistentvolumeclaim/postgres-pvc unchanged
+service/postgres unchanged
+deployment.apps/postgres unchanged
+deployment.apps/django-deployment unchanged
+service/django-service unchanged
+ingress.networking.k8s.io/django-ingress unchanged
