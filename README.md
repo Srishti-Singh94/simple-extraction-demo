@@ -29,93 +29,90 @@ simple-extraction-demo/
 └── README.md
 ```
 
+## ⚙️ Prerequisites
+- Docker
+- Minikube
+- kubectl
+- GitHub Account
+
 ---
 
-## ✅ Step-by-Step: Deployment Automation using `deploy.sh` and `cleanup.sh`
+## 🏗️ Setup Steps
 
-### 🧾 Step 1: Why We Created `deploy.sh` and `cleanup.sh`
-
-✅ deploy.sh was created to fully automate the Kubernetes deployment process, so that there's no need to run kubectl apply repeatedly.
-✅ cleanup.sh was created to easily clean up the previous deployment, including all pods, services, and PVCs.
-
-🛠 Step 2: Created Scripts and Added QA Automation Logic to Them
-
-📁 What was done in deploy.sh:
-
-Added a backup system (e.g., zipped the k8s/ folder with a timestamp).
-
-Added a YAML validation step (if there's an error, the script stops).
-
-Applied each YAML file line-by-line.
-
-Added sleep time after deployment (sleep 10) to allow services to become ready.
-
-Printed final messages like: “App running at: http://<Minikube IP>:<NodePort>”.
-
-🧹 What was done in cleanup.sh:
-Used kubectl delete to delete all YAMLs in reverse order.
-
-Added a delay (sleep 5) to ensure proper cleanup.
-
-Printed confirmation: “✅ All Kubernetes resources have been deleted.”
-
-🔒 Step 3: Made the Scripts Executable
-bash
-Copy
-Edit
-chmod +x deploy.sh
-chmod +x cleanup.sh
-👉 With this step, you can directly run ./deploy.sh — no need to use bash deploy.sh again and again.
-
-🧪 Step 4: Validation, Error Handling, and Improvements
-✅ The script validates YAMLs (clearly shows an error if the Kubernetes cluster is off).
-
-✅ Backup is created before every deployment, making rollback safe.
-
-✅ Easy error tracking: Deployment logs are saved as deploy-<timestamp>.log.
-
-✅ Human-readable messages: Deployment progress is printed step-by-step.
-
-📦 What’s the Final Result?
-The entire Kubernetes deployment is automated.
-
-No more manual kubectl commands.
-
-Time-saving and presentation-friendly (1-click deploy and cleanup).
-
-Reusable, shareable scripts that can be stored on GitHub.
-
-Scripts are readable and professional — ready for real-world production use!
----
-
-## 🚀 Deployment Commands
-
+### 1. Clone Repository
 ```bash
-# Step 1: Start Minikube if not running
-minikube start
-
-# Step 2: Enable Ingress (if using ingress.yaml)
-minikube addons enable ingress
-
-# Step 3: Run the deploy script
-deploy.sh
-
-# Step 4: Verify
-kubectl get all
-
-# Step 5: Get URL
-minikube service django-service --url
+git clone https://github.com/Srishti-Singh94/simple-extraction-demo.git
+cd simple-extraction-demo
 ```
 
----
+### 2. Start Minikube
+```bash
+minikube start --driver=docker
+```
 
-## 🧹 Cleanup
+### 3. Enable Ingress Addon (Important for URL Access)
+```bash
+minikube addons enable ingress
+```
 
+### 4. Deploy the App
+```bash
+./deploy.sh
+```
+This script will apply all Kubernetes files in the correct order.
+
+### 5. Access Application
+```bash
+minikube ip
+```
+Then, add the below entry in your `/etc/hosts` file (Linux/macOS) or `C:\Windows\System32\drivers\etc\hosts` (Windows):
+```
+<your-minikube-ip>  django-app.local
+```
+Now visit: [http://django-app.local](http://django-app.local)
+
+### 6. Cleanup Resources
 ```bash
 ./cleanup.sh
 ```
 
+### 7. Auto Git Push
+```bash
+./git-auto-push.sh
+```
+This automates `git add`, `commit`, and `push`. You can enter a message or use the default.
+
 ---
 
-## 🔚 Done!
-You now have a clean, automated, and professional deployment process for your Django Kubernetes app.
+## 📘 File Purpose & Infra Impact
+
+| File              | Purpose                        | Bonus Output / Benefit                         | Infra Impact                         |
+|-------------------|--------------------------------|------------------------------------------------|--------------------------------------|
+| `deploy.sh`       | Automate deployment            | Fast, repeatable setup                         | Creates all K8s resources            |
+| `cleanup.sh`      | Automate cleanup               | Easy rollback, no leftovers                    | Deletes all resources                |
+| `README.md`       | Documentation & guide          | Easy to follow, sharable, GitHub-ready         | No infra change                      |
+| `*.yaml` (K8s)    | Infra definition                | Full infra as code (IaC)                       | Real infra lives here                |
+| `git-auto-push.sh`| Git automation                 | Fast version control                           | No runtime change, helps developer   |
+
+---
+
+## 🧪 Troubleshooting
+
+- App not opening?
+  - Run `minikube ip` and verify correct entry in `/etc/hosts`
+  - Check pod status: `kubectl get pods`
+  - Check logs: `kubectl logs <pod-name>`
+
+- Database issues?
+  - Check PVC: `kubectl get pvc`
+  - Verify secrets: `kubectl describe secret postgres-secret`
+
+- Ingress not working?
+  - Check ingress controller logs: `kubectl logs -n ingress-nginx <controller-pod>`
+
+---
+
+## 📞 Author
+**Srishti Singh** – [GitHub Profile](https://github.com/Srishti-Singh94)
+
+---
