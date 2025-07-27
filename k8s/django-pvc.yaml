@@ -1,0 +1,26 @@
+# media-pv.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: media-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /mnt/data/media
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: media-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: media-pv
+  storageClassName: ""
